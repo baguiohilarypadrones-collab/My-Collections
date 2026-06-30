@@ -527,18 +527,6 @@
       render();
     }
 
-    // Reset default DB function
-    function resetToSamples() {
-      if (confirm("Reset current cards to defaults? All custom cards will be lost.")) {
-        allMedia = [...defaultSamples];
-        links = { ...defaultLinks };
-        saveItems();
-        saveLinks();
-        statusText = "Database reset to defaults successfully.";
-        render();
-      }
-    }
-
     // Save Form Submission
     function handleFormSubmit(e) {
       e.preventDefault();
@@ -730,7 +718,6 @@
                   ${darkMode ? "Light Mode" : "Dark Mode"}
                 </button>
                 <button onclick="triggerAddOpen()" class="rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500">+ Add Card</button>
-                <button onclick="resetToSamples()" class="rounded-full border px-4 py-2 text-sm font-medium transition border-rose-200 bg-rose-50 text-rose-700 hover:border-rose-400 dark:border-rose-900 dark:bg-rose-950/20 dark:text-rose-400">Reset Defaults</button>
               </div>
             </div>
             
