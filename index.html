@@ -628,7 +628,20 @@ function deriveStatus(item){
   const p = item.progress || {};
   const cat = item.category;
   if(cat==="manhwa") return (p.currentChapter||0) >= (p.totalChapters||Infinity) ? "Completed" : (p.currentChapter||0) > 0 ? "In Progress" : "Not Started";
-  if(["anime","cartoon","series","drama"].includes(cat)) return (p.currentEpisode||0) >= (p.totalEpisodes||Infinity) && (p.currentSeason||0) >= (p.totalSeasons||Infinity) ? "Completed" : (p.currentEpisode||0) > 0 ? "In Progress" : "Not Started";
+ if(["anime","cartoon","series","drama"].includes(cat)){
+  const currentSeason = p.currentSeason || 1;
+  const totalSeasons = p.totalSeasons || 1;
+  const currentEpisode = p.currentEpisode || 0;
+  const totalEpisodes = getSeasonEpisodes(p, currentSeason);
+
+  if(currentSeason === totalSeasons && currentEpisode >= totalEpisodes)
+    return "Completed";
+
+  if(currentEpisode > 0 || currentSeason > 1)
+    return "In Progress";
+
+  return "Not Started";
+}
   if(cat==="book") return (p.currentPage||0) >= (p.totalPages||Infinity) ? "Completed" : (p.currentPage||0) > 0 ? "In Progress" : "Not Started";
   return (p.watchPercentage||0) >= 100 ? "Completed" : (p.watchPercentage||0) > 0 ? "In Progress" : "Not Started";
 }
