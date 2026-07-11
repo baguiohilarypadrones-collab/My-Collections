@@ -645,7 +645,7 @@ function getFilteredMedia(){
   
   // Apply status filter
   if(activeStatusFilters.length > 0){
-    list = list.filter(item => activeStatusFilters.includes(deriveStatus(item)));
+    list = list.filter(item => activeStatusFilters.includes(item.status));
   }
   
   return list;
@@ -654,7 +654,25 @@ function getFilteredMedia(){
 function renderFilterPills(){
   // Status pills
   const statusPills = qs("statusFilterPills");
-  const statuses = ["Not Started", "In Progress", "Completed"];
+  const statuses = [
+  "Watching",
+    "Rewatching",
+  "Watched",
+  "Reading",
+    "Rereading",
+  "Finished",
+  "Completed",
+  "Paused",
+  "On Hold",
+  "Ongoing",
+  "Upcoming",
+  "Hiatus",
+  "Dropped",
+  "Cancelled",
+  "Stopped",
+  "Plan to Watch",
+  "Plan to Read"
+];
   statusPills.innerHTML = statuses.map(s =>
     `<span class="filter-pill ${activeStatusFilters.includes(s)?"active":""}" onclick="toggleStatusFilter('${s}')">${s}</span>`
   ).join("");
