@@ -380,14 +380,20 @@ html.dark .btn.cloud-pull{background:rgba(21,128,61,.15);color:#86efac;border-co
           <span class="filter-badge" id="filterBadge" style="display:none">0</span>
         </button>
         <div class="filter-dropdown" id="filterDropdown">
-          <div class="filter-group">
-            <h4>Status</h4>
-            <div class="filter-pills" id="statusFilterPills"></div>
-          </div>
-          <div class="filter-group">
-            <h4>Genres</h4>
-            <div class="filter-pills" id="genreFilterPills"></div>
-          </div>
+         <div class="filter-group">
+  <h4>Progress</h4>
+  <div class="filter-pills" id="statusFilterPills"></div>
+</div>
+
+<div class="filter-group">
+  <h4>Current Status</h4>
+  <div class="filter-pills" id="mediaStatusFilterPills"></div>
+</div>
+
+<div class="filter-group">
+  <h4>Genres</h4>
+  <div class="filter-pills" id="genreFilterPills"></div>
+</div>
         </div>
       </div>
       <div class="active-filters" id="activeFiltersBar"></div>
@@ -516,10 +522,11 @@ let formState = {
 };
 
 // Filter state
-let activeStatusFilters = [];
+let activeProgressFilters = [];
+let activeMediaStatusFilters = [];
 let activeGenreFilters = [];
 let filterDropdownOpen = false;
-
+  
 const qs = (id) => document.getElementById(id);
 
 function safeParse(value, fallback){
@@ -643,10 +650,19 @@ function getFilteredMedia(){
     list = list.filter(item => activeGenreFilters.some(g => (item.genres||[]).includes(g)));
   }
   
-  // Apply status filter
-  if(activeStatusFilters.length > 0){
-    list = list.filter(item => activeStatusFilters.includes(item.status));
-  }
+ // Apply progress filter
+if(activeProgressFilters.length > 0){
+  list = list.filter(item =>
+    activeProgressFilters.includes(deriveStatus(item))
+  );
+}
+
+// Apply current status filter
+if(activeMediaStatusFilters.length > 0){
+  list = list.filter(item =>
+    activeMediaStatusFilters.includes(item.status)
+  );
+}
   
   return list;
 }
@@ -654,28 +670,22 @@ function getFilteredMedia(){
 function renderFilterPills(){
   // Status pills
   const statusPills = qs("statusFilterPills");
-  const statuses = ["Not Started", "In Progress", "Completed",
-  "Watching",
-    "Rewatching",
-  "Watched",
-  "Reading",
-    "Rereading",
-  "Finished",
-  "Completed",
-  "Paused",
-  "On Hold",
-  "Ongoing",
-  "Upcoming",
-  "Hiatus",
-  "Dropped",
-  "Cancelled",
-  "Stopped",
-  "Plan to Watch",
-  "Plan to Read"
+  const statuses = ["Not Started", "In Progress", "Completed"
 ];
   statusPills.innerHTML = statuses.map(s =>
-    `<span class="filter-pill ${activeStatusFilters.includes(s)?"active":""}" onclick="toggleStatusFilter('${s}')">${s}</span>`
+    `<span class="filter-pill ${activeProgressFilters.includes(s)?"active":""}" onclick="toggleStatusFilter('${s}')">${s}</span>`
   ).join("");
+
+  const mediaStatusPills = qs("mediaStatusFilterPills");
+
+mediaStatusPills.innerHTML = MEDIA_STATUSES.map(status =>
+  `<span class="filter-pill ${
+    activeMediaStatusFilters.includes(status) ? "active" : ""
+  }"
+  onclick="toggleMediaStatusFilter('${status}')">
+    ${status}
+  </span>`
+).join("");
   
   // Genre pills
   const genrePills = qs("genreFilterPills");
@@ -686,19 +696,56 @@ function renderFilterPills(){
   
   // Active filter chips bar
   const bar = qs("activeFiltersBar");
-  const allActive = [...activeStatusFilters.map(s=>({type:"status",val:s})), ...activeGenreFilters.map(g=>({type:"genre",val:g}))];
+ const allActive = [
+  ...activeProgressFilters.map(s => ({
+    type: "progress",
+    val: s
+  })),
+  ...activeMediaStatusFilters.map(s => ({
+    type: "media",
+    val: s
+  })),
+  ...activeGenreFilters.map(g => ({
+    type: "genre",
+    val: g
+  }))
+];
   if(allActive.length === 0){ bar.innerHTML = ""; qs("filterBadge").style.display = "none"; return; }
   qs("filterBadge").style.display = "inline-flex";
   qs("filterBadge").textContent = allActive.length;
-  bar.innerHTML = allActive.map(f =>
-    `<span class="active-filter-chip">${f.val}<button type="button" onclick="${f.type==='status'?"removeStatusFilter":"removeGenreFilter"}('${f.val}')">✕</button></span>`
-  ).join("");
+ bar.innerHTML = allActive.map(f => {
+  let fn = "removeGenreFilter";
+
+  if (f.type === "progress")
+    fn = "removeProgressFilter";
+
+  if (f.type === "media")
+    fn = "removeMediaStatusFilter";
+
+  return `
+    <span class="active-filter-chip">
+      ${f.val}
+      <button type="button" onclick="${fn}('${f.val}')">✕</button>
+    </span>
+  `;
+}).join("");
 }
 
 function toggleStatusFilter(status){
-  const idx = activeStatusFilters.indexOf(status);
-  if(idx >= 0) activeStatusFilters.splice(idx, 1);
-  else activeStatusFilters.push(status);
+  const idx = activeProgressFilters.indexOf(status);
+  if(idx >= 0) activeProgressFilters.splice(idx, 1);
+  else activeProgressFilters.push(status);
+  renderFilterPills();
+  renderResults();
+}
+function toggleMediaStatusFilter(status){
+  const idx = activeMediaStatusFilters.indexOf(status);
+
+  if(idx >= 0)
+    activeMediaStatusFilters.splice(idx, 1);
+  else
+    activeMediaStatusFilters.push(status);
+
   renderFilterPills();
   renderResults();
 }
@@ -709,8 +756,17 @@ function toggleGenreFilter(genre){
   renderFilterPills();
   renderResults();
 }
-function removeStatusFilter(status){
-  activeStatusFilters = activeStatusFilters.filter(s=>s!==status);
+function removeProgressFilter(status){
+  activeProgressFilters =
+    activeProgressFilters.filter(s => s !== status);
+
+  renderFilterPills();
+  renderResults();
+}
+function removeMediaStatusFilter(status){
+  activeMediaStatusFilters =
+    activeMediaStatusFilters.filter(s => s !== status);
+
   renderFilterPills();
   renderResults();
 }
