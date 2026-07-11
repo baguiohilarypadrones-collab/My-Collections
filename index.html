@@ -981,8 +981,7 @@ function renderModalContent(){
           ${sequels.length ? `<div class="linked-group"><span class="linked-label">Sequels (${sequels.length})</span>${sequels.map(renderLinkedRow).join("")}</div>` : ""}
         </div>` : ""}
         <div style="display:flex;gap:8px;margin-top:12px;">
-          <button class="btn" type="button" onclick="handleCloseDetails(); setTimeout(()=>handleEdit('${item._id}'),100)">✎ Edit</button>
-          <button class="btn danger" type="button" onclick="handleCloseDetails(); setTimeout(()=>deleteCard('${item._id}'),200)">🗑 Delete</button>
+          <button class="btn" type="button" onclick="handleCloseDetails(); setTimeout(()=>handleEdit('${item._id}'),100)">✎</button>
           <button class="btn" type="button" onclick="handleCloseDetails()">Close</button>
         </div>
       </div>
@@ -1041,7 +1040,7 @@ function buildDrawer(){
     <div class="modal-head">
       <div><p class="eyebrow">Local card editor</p><h3>${editingId?"Edit Media":"Add Card"}</h3></div>
       <div class="modal-head-actions">
-        ${editingId ? `<button type="button" class="btn danger" onclick="deleteCard('${editingId}')">Delete</button>` : ""}
+        ${editingId ? `<button type="button" class="btn danger" onclick="deleteCard('${editingId}')">🗑 Delete</button>` : ""}
         <button type="button" class="close-btn" onclick="closeDrawer()">✕</button>
       </div>
     </div>
