@@ -179,7 +179,12 @@ html.dark .btn.cloud-pull{background:rgba(21,128,61,.15);color:#86efac;border-co
   #userOverlay.open{display:flex;}
   #userOverlay .modal-card{position:relative;max-height:90vh;overflow-y:auto;overflow-x:hidden;}
   .user-tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;}
-  .user-tab{flex:1;border:0;border-radius:999px;background:#2563eb;color:var(--muted);padding:10px;font-size:.82rem;font-weight:800;cursor:pointer;transition:all .15s ease;}
+  .user-tab{flex:1;border:0;border-radius:999px;background:#2563eb;color:var(--muted);padding:10px;font-size:.82rem;font-weight:800;cursor:pointer;transition:all .15s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  white-space:nowrap;}
   .user-tab.active{background:var(--primary);color:#fff;}
   .user-list{display:flex;flex-direction:column;gap:6px;}
   .user-card{display:flex;align-items:center;gap:18px;border:1px solid var(--border);border-radius:16px;padding:18px 20px;background:var(--panel);transition:transform .12s ease,border-color .12s ease;cursor:pointer;min-height:100px;}
@@ -872,14 +877,14 @@ function renderUserTabButtons(){
   const countFol = followingIds.filter(id => allMedia.some(m => m._id === id)).length;
   return `
     <div class="user-tabs">
-      <button class="user-tab ${userActiveTab==='favorites'?'active':''}" onclick="switchUserTab('favorites')">♥ Favorites (${countFavs})</button>
+      <button class="user-tab ${userActiveTab==='favorites'?'active':''}" onclick="switchUserTab('favorites')">A Favorites (${countFavs})</button>
       <button class="user-tab ${userActiveTab==='following'?'active':''}" onclick="switchUserTab('following')">★ Following (${countFol})</button>
     </div>`;
 }
 function renderUserModal(tab){
   const ids = tab === "favorites" ? favoriteIds : followingIds;
   const items = ids.map(id => allMedia.find(m => m._id === id)).filter(Boolean);
-  const heartIcon = tab === "favorites" ? "♡" : "★";
+  const heartIcon = tab === "favorites" ? "♥" : "★";
   const emptyMsg = tab === "favorites" ? "No favorites yet. Tap ♡ on any card to add it here." : "Not following anyone yet. Tap ☆ on any card to follow it.";
 
   qs("userModalContent").innerHTML = `
