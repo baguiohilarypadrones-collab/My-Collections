@@ -1659,10 +1659,11 @@ async function firestorePushAll() {
       }, { merge: true });
     });
     await batch.commit();
-await USER_DOC.set({
+await fbDb.collection("app_data").doc("user_lists").set({
   favorites: favoriteIds,
   following: followingIds
 }, { merge: true });
+
     alert("✅ Pushed " + allMedia.length + " cards to Firebase!");
   } catch (e) { alert("Push failed: " + e.message); }
 }
@@ -1685,7 +1686,7 @@ async function firestorePullAll() {
     });
     if (items.length > 0 && typeof allMedia !== "undefined") {
       allMedia = items;
-const userSnap = await USER_DOC.get();
+const userSnap = await fbDb.collection("app_data").doc("user_lists").get();
 
 if(userSnap.exists){
   const user = userSnap.data();
