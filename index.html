@@ -179,7 +179,7 @@ html.dark .btn.cloud-pull{background:rgba(21,128,61,.15);color:#86efac;border-co
   #userOverlay.open{display:flex;}
   #userOverlay .modal-card{position:relative;max-height:90vh;overflow-y:auto;overflow-x:hidden;}
   .user-tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;}
-  .user-tab{flex:1;border:0;border-radius:999px;background:var(--panel-soft);color:var(--muted);padding:10px;font-size:.82rem;font-weight:800;cursor:pointer;transition:all .15s ease;}
+  .user-tab{flex:1;border:0;border-radius:999px;background:#2563eb;color:var(--muted);padding:10px;font-size:.82rem;font-weight:800;cursor:pointer;transition:all .15s ease;}
   .user-tab.active{background:var(--primary);color:#fff;}
   .user-list{display:flex;flex-direction:column;gap:6px;}
   .user-card{display:flex;align-items:center;gap:18px;border:1px solid var(--border);border-radius:16px;padding:18px 20px;background:var(--panel);transition:transform .12s ease,border-color .12s ease;cursor:pointer;min-height:100px;}
@@ -832,6 +832,9 @@ function toggleFavorite(id){
   const idx = favoriteIds.indexOf(id);
   if(idx >= 0) favoriteIds.splice(idx, 1); else favoriteIds.push(id);
   saveFavs();
+USER_DOC.set({
+  favorites: favoriteIds
+}, { merge:true });
   renderResults();
   if(userModalOpen) renderUserModal("favorites");
 }
@@ -840,6 +843,9 @@ function toggleFollowing(id){
   const idx = followingIds.indexOf(id);
   if(idx >= 0) followingIds.splice(idx, 1); else followingIds.push(id);
   saveFollowing();
+USER_DOC.set({
+  following: followingIds
+}, { merge:true });
   renderResults();
   if(userModalOpen) renderUserModal("following");
 }
@@ -1598,6 +1604,7 @@ let cloudUnsub = null;
     }
     fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
     fbDb = firebase.firestore();
+const USER_DOC = fbDb.collection("app_data").doc("user_lists");
     cloudEnabled = true;
 
     const host = document.getElementById("cloudBadgeHost");
@@ -1652,6 +1659,10 @@ async function firestorePushAll() {
       }, { merge: true });
     });
     await batch.commit();
+await USER_DOC.set({
+  favorites: favoriteIds,
+  following: followingIds
+}, { merge: true });
     alert("✅ Pushed " + allMedia.length + " cards to Firebase!");
   } catch (e) { alert("Push failed: " + e.message); }
 }
@@ -1674,6 +1685,22 @@ async function firestorePullAll() {
     });
     if (items.length > 0 && typeof allMedia !== "undefined") {
       allMedia = items;
+const userSnap = await USER_DOC.get();
+
+if(userSnap.exists){
+  const user = userSnap.data();
+
+  favoriteIds = Array.isArray(user.favorites)
+    ? user.favorites
+    : [];
+
+  followingIds = Array.isArray(user.following)
+    ? user.following
+    : [];
+
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteIds));
+  localStorage.setItem(FOLLOWING_KEY, JSON.stringify(followingIds));
+}
       localStorage.setItem(STORAGE_ITEMS_KEY, JSON.stringify(allMedia));
       if (typeof render === "function") render();
       alert("☁️ Pulled " + items.length + " cards!");
