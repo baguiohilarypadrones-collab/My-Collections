@@ -832,9 +832,9 @@ function toggleFavorite(id){
   const idx = favoriteIds.indexOf(id);
   if(idx >= 0) favoriteIds.splice(idx, 1); else favoriteIds.push(id);
   saveFavs();
-USER_DOC.set({
+fbDb.collection("app_data").doc("user_lists").set({
   favorites: favoriteIds
-}, { merge:true });
+}, { merge: true });
   renderResults();
   if(userModalOpen) renderUserModal("favorites");
 }
@@ -843,9 +843,9 @@ function toggleFollowing(id){
   const idx = followingIds.indexOf(id);
   if(idx >= 0) followingIds.splice(idx, 1); else followingIds.push(id);
   saveFollowing();
-USER_DOC.set({
+fbDb.collection("app_data").doc("user_lists").set({
   following: followingIds
-}, { merge:true });
+}, { merge: true });
   renderResults();
   if(userModalOpen) renderUserModal("following");
 }
@@ -1636,6 +1636,26 @@ const USER_DOC = fbDb.collection("app_data").doc("user_lists");
           if (typeof render === "function") render();
         }
       }, err => console.warn("Firestore listener error:", err.message));
+
+/* ===== ADD THIS HERE ===== */
+fbDb.collection("app_data").doc("user_lists")
+  .onSnapshot((doc) => {
+    if (!doc.exists) return;
+
+    const data = doc.data();
+
+    favoriteIds = Array.isArray(data.favorites) ? data.favorites : [];
+    followingIds = Array.isArray(data.following) ? data.following : [];
+
+    try {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteIds));
+      localStorage.setItem(FOLLOWING_KEY, JSON.stringify(followingIds));
+    } catch (e) {}
+
+    if (typeof render === "function") render();
+  });
+
+/* ===== END ADD ===== */
       
     // Update footer cloud status
     const footerStatus = document.getElementById("footerCloudStatus");
