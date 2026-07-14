@@ -879,7 +879,7 @@ function renderUserTabButtons(){
 function renderUserModal(tab){
   const ids = tab === "favorites" ? favoriteIds : followingIds;
   const items = ids.map(id => allMedia.find(m => m._id === id)).filter(Boolean);
-  const heartIcon = tab === "favorites" ? "♥" : "★";
+  const heartIcon = tab === "favorites" ? "♡" : "★";
   const emptyMsg = tab === "favorites" ? "No favorites yet. Tap ♡ on any card to add it here." : "Not following anyone yet. Tap ☆ on any card to follow it.";
 
   qs("userModalContent").innerHTML = `
@@ -1060,7 +1060,7 @@ function renderProgressControls(item){
   if(item.category==="manhwa"){
     const current=p.currentChapter??0, total=p.totalChapters??0;
     return `<div class="progress-controls">
-      <button class="progress-btn" type="button" onclick="handlePatchProgress('${item._id}', {currentChapter: clamp(${current-1},0,${total})})">−</button>
+      <button class="progress-btn" type="button" onclick="handlePatchProgress('${item._id}', {currentChapter: clamp(${current-1},0,${total})})">-</button>
       <span class="progress-value">${current}</span>
       <button class="progress-btn" type="button" onclick="handlePatchProgress('${item._id}', {currentChapter: clamp(${current+1},0,${total})})">+</button>
     </div>`;
