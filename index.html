@@ -130,7 +130,7 @@ html.dark .btn.cloud-pull{background:rgba(21,128,61,.15);color:#86efac;border-co
   /* Media card */
   .media-card{overflow:hidden;border-radius:26px;border:1px solid var(--border);background:color-mix(in srgb,var(--panel) 94%,transparent);box-shadow:0 20px 60px rgba(15,23,42,.08);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;}
   .media-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--primary) 44%,var(--border));box-shadow:var(--shadow);}
-  .cover-wrap{position:relative;height:190px;overflow:hidden;background:var(--panel-soft);}
+  .cover-wrap{position:relative;height:280px;overflow:hidden;background:var(--panel-soft);}
   .cover-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .45s ease;}
   .media-card:hover .cover-wrap img{transform:scale(1.06);}
   .badge,.rating-badge{position:absolute;top:12px;border-radius:999px;padding:6px 10px;color:#fff;font-size:.65rem;font-weight:900;backdrop-filter:blur(12px);letter-spacing:.04em;text-transform:uppercase;}
@@ -175,6 +175,23 @@ html.dark .btn.cloud-pull{background:rgba(21,128,61,.15);color:#86efac;border-co
   /* Overlay / Drawer / Modal */
   .overlay{position:fixed;inset:0;z-index:50;display:none;background:rgba(2,6,23,.6);backdrop-filter:blur(10px);}
   .overlay.open{display:block;}
+  #userOverlay{display:none;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.85);}
+  #userOverlay.open{display:flex;}
+  #userOverlay .modal-card{position:relative;max-height:90vh;overflow-y:auto;overflow-x:hidden;}
+  .user-tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;}
+  .user-tab{flex:1;border:0;border-radius:999px;background:var(--panel-soft);color:var(--muted);padding:10px;font-size:.82rem;font-weight:800;cursor:pointer;transition:all .15s ease;}
+  .user-tab.active{background:var(--primary);color:#fff;}
+  .user-list{display:flex;flex-direction:column;gap:6px;}
+  .user-card{display:flex;align-items:center;gap:18px;border:1px solid var(--border);border-radius:16px;padding:18px 20px;background:var(--panel);transition:transform .12s ease,border-color .12s ease;cursor:pointer;min-height:100px;}
+  .user-card:hover{transform:translateX(3px);border-color:color-mix(in srgb,var(--primary) 30%,var(--border));}
+  .user-card-img{width:84px;height:84px;border-radius:14px;object-fit:cover;flex-shrink:0;background:var(--panel-soft);}
+  .user-card-body{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .user-card-body .info{min-width:0;}
+  .user-card-body .info p{margin:0;font-size:.87rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .user-card-body .info span{font-size:.7rem;color:var(--muted);font-weight:700;}
+  .user-card-toggle{font-size:16px;cursor:pointer;flex-shrink:0;transition:transform .15s ease;}
+  .user-empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:.85rem;}
+  .user-empty strong{display:block;margin-bottom:6px;font-size:1rem;color:var(--text);}
   #drawerOverlay .drawer{position:absolute;right:0;top:0;height:100%;width:min(460px,100%);overflow-y:auto;padding:26px;background:var(--panel);box-shadow:var(--shadow);border-left:1px solid var(--border);}
   #modalOverlay{display:none;align-items:center;justify-content:center;padding:18px;}
   #modalOverlay.open{display:flex;}
@@ -236,7 +253,7 @@ html.dark .btn.cloud-pull{background:rgba(21,128,61,.15);color:#86efac;border-co
   .linked-info p{margin:0;font-size:.85rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .linked-info span{font-size:.7rem;color:var(--muted);}
 
- .top-search{
+  .top-search{
     width:100%;
     display:flex;
     flex-direction:column;
@@ -256,7 +273,7 @@ html.dark .btn.cloud-pull{background:rgba(21,128,61,.15);color:#86efac;border-co
   * { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--muted) 30%, transparent) transparent; }
 
   /* Search filters */
- .search-row{
+  .search-row{
     display:flex;
     align-items:center;
     gap:8px;
@@ -366,6 +383,7 @@ html.dark .btn.cloud-pull{background:rgba(21,128,61,.15);color:#86efac;border-co
         <button class="btn" id="viewToggleBtn" type="button">Grid View</button> 
         <button class="btn" id="darkToggleBtn" type="button">Dark Mode</button> 
         <button class="btn primary" id="addCardBtn" type="button">+ Add Card</button>
+        <button class="btn" id="userBtn" type="button" style="border-color:#ec4899;color:#ec4899;">👤 User</button>
         <button class="btn" id="loginBtn" type="button" style="border-color:#6366f1;color:#6366f1;">🔒 Login</button>
       </div>
     </div>
@@ -430,6 +448,10 @@ html.dark .btn.cloud-pull{background:rgba(21,128,61,.15);color:#86efac;border-co
   </div>
 </footer>
 
+<div class="overlay" id="userOverlay">
+  <div class="modal-card" id="userModalContent" style="max-width:640px;min-height:400px;"></div>
+</div>
+
 <div class="overlay" id="drawerOverlay">
   <aside class="drawer" id="drawerAside"></aside>
 </div>
@@ -460,7 +482,7 @@ const categoryLabel = {
 };
 
 const MEDIA_STATUSES = [
-  "Watching","Rewatching","Watched","Reading","Rereading","Finished","Completed","Paused","On Hold",
+  "Watching","Watched","Reading","Finished","Completed","Paused","On Hold",
   "Ongoing","Upcoming","Hiatus","Dropped","Cancelled","Stopped","Plan to Watch","Plan to Read"
 ];
   
@@ -526,7 +548,20 @@ let activeProgressFilters = [];
 let activeMediaStatusFilters = [];
 let activeGenreFilters = [];
 let filterDropdownOpen = false;
-  
+
+// ===== Favorites & Following state
+let favoriteIds = [];
+let followingIds = [];
+const FAVORITES_KEY = "media_flow_favorites";
+const FOLLOWING_KEY = "media_flow_following";
+
+function loadFavs(){ try { favoriteIds = JSON.parse(localStorage.getItem(FAVORITES_KEY)) || []; } catch { favoriteIds = []; } }
+function loadFollowing(){ try { followingIds = JSON.parse(localStorage.getItem(FOLLOWING_KEY)) || []; } catch { followingIds = []; } }
+function saveFavs(){ localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteIds)); }
+function saveFollowing(){ localStorage.setItem(FOLLOWING_KEY, JSON.stringify(followingIds)); }
+loadFavs();
+loadFollowing();
+
 const qs = (id) => document.getElementById(id);
 
 function safeParse(value, fallback){
@@ -628,7 +663,7 @@ function deriveStatus(item){
   const p = item.progress || {};
   const cat = item.category;
   if(cat==="manhwa") return (p.currentChapter||0) >= (p.totalChapters||Infinity) ? "Completed" : (p.currentChapter||0) > 0 ? "In Progress" : "Not Started";
- if(["anime","cartoon","series","drama"].includes(cat)){
+  if(["anime","cartoon","series","drama"].includes(cat)){
   const currentSeason = p.currentSeason || 1;
   const totalSeasons = p.totalSeasons || 1;
   const currentEpisode = p.currentEpisode || 0;
@@ -658,7 +693,7 @@ function getFilteredMedia(){
   if(activeCategory!=="overall") list = list.filter(i=>i.category===activeCategory);
   if(term) list = list.filter(i=> `${i.title} ${i.description} ${i.genres.join(" ")}`.toLowerCase().includes(term));
   
-  // Apply genre filter
+   // Apply genre filter
   if(activeGenreFilters.length > 0){
     list = list.filter(item => activeGenreFilters.some(g => (item.genres||[]).includes(g)));
   }
@@ -683,13 +718,12 @@ if(activeMediaStatusFilters.length > 0){
 function renderFilterPills(){
   // Status pills
   const statusPills = qs("statusFilterPills");
-  const statuses = ["Not Started", "In Progress", "Completed"
-];
+  const statuses = ["Not Started", "In Progress", "Completed"];
   statusPills.innerHTML = statuses.map(s =>
     `<span class="filter-pill ${activeProgressFilters.includes(s)?"active":""}" onclick="toggleStatusFilter('${s}')">${s}</span>`
   ).join("");
-
-  const mediaStatusPills = qs("mediaStatusFilterPills");
+  
+ const mediaStatusPills = qs("mediaStatusFilterPills");
 
 mediaStatusPills.innerHTML = MEDIA_STATUSES.map(status =>
   `<span class="filter-pill ${
@@ -699,7 +733,7 @@ mediaStatusPills.innerHTML = MEDIA_STATUSES.map(status =>
     ${status}
   </span>`
 ).join("");
-  
+
   // Genre pills
   const genrePills = qs("genreFilterPills");
   const genres = getAllGenres();
@@ -709,19 +743,19 @@ mediaStatusPills.innerHTML = MEDIA_STATUSES.map(status =>
   
   // Active filter chips bar
   const bar = qs("activeFiltersBar");
- const allActive = [
-  ...activeProgressFilters.map(s => ({
-    type: "progress",
-    val: s
-  })),
-  ...activeMediaStatusFilters.map(s => ({
-    type: "media",
-    val: s
-  })),
-  ...activeGenreFilters.map(g => ({
-    type: "genre",
-    val: g
-  }))
+  const allActive = [
+    ...activeProgressFilters.map(s => ({
+        type:"progress",
+        val:s
+    })),
+    ...activeMediaStatusFilters.map(s => ({
+        type:"media",
+        val:s
+    })),
+    ...activeGenreFilters.map(g => ({
+        type:"genre",
+        val:g
+    }))
 ];
   if(allActive.length === 0){ bar.innerHTML = ""; qs("filterBadge").style.display = "none"; return; }
   qs("filterBadge").style.display = "inline-flex";
@@ -751,6 +785,7 @@ function toggleStatusFilter(status){
   renderFilterPills();
   renderResults();
 }
+
 function toggleMediaStatusFilter(status){
   const idx = activeMediaStatusFilters.indexOf(status);
 
@@ -762,6 +797,7 @@ function toggleMediaStatusFilter(status){
   renderFilterPills();
   renderResults();
 }
+
 function toggleGenreFilter(genre){
   const idx = activeGenreFilters.indexOf(genre);
   if(idx >= 0) activeGenreFilters.splice(idx, 1);
@@ -769,6 +805,7 @@ function toggleGenreFilter(genre){
   renderFilterPills();
   renderResults();
 }
+
 function removeProgressFilter(status){
   activeProgressFilters =
     activeProgressFilters.filter(s => s !== status);
@@ -783,11 +820,94 @@ function removeMediaStatusFilter(status){
   renderFilterPills();
   renderResults();
 }
+
 function removeGenreFilter(genre){
   activeGenreFilters = activeGenreFilters.filter(g=>g!==genre);
   renderFilterPills();
   renderResults();
 }
+// ===== Favorites & Following functions
+function toggleFavorite(id){
+  if(!requireLogin()) return;
+  const idx = favoriteIds.indexOf(id);
+  if(idx >= 0) favoriteIds.splice(idx, 1); else favoriteIds.push(id);
+  saveFavs();
+  renderResults();
+  if(userModalOpen) renderUserModal("favorites");
+}
+function toggleFollowing(id){
+  if(!requireLogin()) return;
+  const idx = followingIds.indexOf(id);
+  if(idx >= 0) followingIds.splice(idx, 1); else followingIds.push(id);
+  saveFollowing();
+  renderResults();
+  if(userModalOpen) renderUserModal("following");
+}
+
+let userModalOpen = false;
+let userActiveTab = "favorites";
+
+function openUserModal(){
+  userModalOpen = true;
+  userActiveTab = "favorites";
+  qs("userOverlay").classList.add("open");
+  renderUserModal("favorites");
+}
+function closeUserModal(){
+  userModalOpen = false;
+  qs("userOverlay").classList.remove("open");
+}
+function switchUserTab(tab){
+  userActiveTab = tab;
+  renderUserModal(tab);
+}
+function renderUserTabButtons(){
+  const countFavs = favoriteIds.filter(id => allMedia.some(m => m._id === id)).length;
+  const countFol = followingIds.filter(id => allMedia.some(m => m._id === id)).length;
+  return `
+    <div class="user-tabs">
+      <button class="user-tab ${userActiveTab==='favorites'?'active':''}" onclick="switchUserTab('favorites')">♥ Favorites (${countFavs})</button>
+      <button class="user-tab ${userActiveTab==='following'?'active':''}" onclick="switchUserTab('following')">★ Following (${countFol})</button>
+    </div>`;
+}
+function renderUserModal(tab){
+  const ids = tab === "favorites" ? favoriteIds : followingIds;
+  const items = ids.map(id => allMedia.find(m => m._id === id)).filter(Boolean);
+  const heartIcon = tab === "favorites" ? "♥" : "★";
+  const emptyMsg = tab === "favorites" ? "No favorites yet. Tap ♡ on any card to add it here." : "Not following anyone yet. Tap ☆ on any card to follow it.";
+
+  qs("userModalContent").innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:16px;">
+      <div>
+        <p style="margin:0 0 4px;color:var(--primary-2);font-size:.68rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;">User Collection</p>
+        <h3 style="margin:0;font-size:1.3rem;letter-spacing:-0.04em;">${tab === "favorites" ? "♥ My Favorites" : "★ Following"} <span style="color:var(--muted);font-size:.8rem;font-weight:600;">(${items.length})</span></h3>
+      </div>
+      <button class="close-btn" onclick="closeUserModal()">✕</button>
+    </div>
+    ${renderUserTabButtons()}
+    ${items.length === 0 ? `
+      <div class="user-empty">
+        <strong>${tab === "favorites" ? "♥ No favorites yet" : "★ Not following anyone"}</strong>
+        ${emptyMsg}
+      </div>
+    ` : `
+      <div class="user-list">
+        ${items.map(item => `
+          <div class="user-card" onclick="handleShow('${item._id}')">
+            <img class="user-card-img" src="${escapeAttr(item.coverImage)}" alt="${escapeAttr(item.title)}" onerror="this.src='${fallbackCover}'" />
+            <div class="user-card-body">
+              <div class="info">
+                <p>${escapeHtml(item.title)}</p>
+                <span>${categoryLabel[item.category]} · ★${item.rating.toFixed(1)} · ${item.status||"Ongoing"}</span>
+              </div>
+              <span class="user-card-toggle" onclick="event.stopPropagation();${tab==='favorites'?'toggleFavorite':'toggleFollowing'}('${item._id}');renderUserModal('${tab}')" style="${tab==='favorites'?'color:#f43f5e;':'color:#60a5fa;'}">${heartIcon}</span>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `}`;
+}
+
 function toggleFilterDropdown(){
   filterDropdownOpen = !filterDropdownOpen;
   qs("filterDropdown").classList.toggle("open", filterDropdownOpen);
@@ -878,7 +998,7 @@ function renderResults(){
   }
 }
 
-function render() { renderNav(); renderResults(); updateLoginUI(); }
+function render() { renderNav(); renderResults(); updateLoginUI(); if(userModalOpen) renderUserModal(userActiveTab); }
 
 function renderCarouselSection(title, list, id){
   return `<section class="carousel-section">
@@ -909,6 +1029,10 @@ function renderMediaCard(item){
       <img src="${escapeAttr(item.coverImage)}" alt="${escapeAttr(item.title)}" onerror="this.src='${fallbackCover}'" />
       <span class="badge">${categoryLabel[item.category]}</span>
       <span class="rating-badge">★ ${Number(item.rating||0).toFixed(1)}</span>
+      <div style="position:absolute;bottom:8px;left:8px;display:flex;gap:4px;">
+        <span onclick="event.stopPropagation();toggleFavorite('${item._id}')" style="cursor:pointer;width:26px;height:26px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:12px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:0;transition:all .15s ease;${favoriteIds.includes(item._id)?'color:#f43f5e;':'color:rgba(255,255,255,.7);'}">${favoriteIds.includes(item._id)?'♥':'♡'}</span>
+        <span onclick="event.stopPropagation();toggleFollowing('${item._id}')" style="cursor:pointer;width:26px;height:26px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:12px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:0;transition:all .15s ease;${followingIds.includes(item._id)?'color:#60a5fa;':'color:rgba(255,255,255,.7);'}">${followingIds.includes(item._id)?'★':'☆'}</span>
+      </div>
     </div>
     <div class="card-body">
       <h3 class="card-title" title="${escapeAttr(item.title)}">${escapeHtml(item.title)}</h3>
@@ -1425,13 +1549,15 @@ function init(){
     triggerAddOpen();
   });
   qs("loginBtn").addEventListener("click", toggleLogin);
+  qs("userBtn").addEventListener("click", openUserModal);
   qs("cloudPushBtn")?.addEventListener("click", firestorePushAll);
   qs("cloudPullBtn")?.addEventListener("click", firestorePullAll);
   qs("gistPushBtn")?.addEventListener("click", pushToGist);
   qs("gistPullBtn")?.addEventListener("click", pullFromGist);
   qs("drawerOverlay").addEventListener("click", (e)=>{ if(e.target.id==="drawerOverlay") closeDrawer(); });
   qs("modalOverlay").addEventListener("click", (e)=>{ if(e.target.id==="modalOverlay") handleCloseDetails(); });
-  window.addEventListener("keydown",(e)=>{ if(e.key==="Escape"){ closeDrawer(); handleCloseDetails(); filterDropdownOpen=false; qs("filterDropdown")?.classList.remove("open"); qs("filterBtn")?.classList.remove("active"); } });
+  qs("userOverlay").addEventListener("click", (e)=>{ if(e.target.id==="userOverlay") closeUserModal(); });
+  window.addEventListener("keydown",(e)=>{ if(e.key==="Escape"){ closeDrawer(); handleCloseDetails(); closeUserModal(); filterDropdownOpen=false; qs("filterDropdown")?.classList.remove("open"); qs("filterBtn")?.classList.remove("active"); } });
   document.addEventListener("click", (e)=>{
     if(filterDropdownOpen && !e.target.closest("#filterDropdown") && !e.target.closest("#filterBtn")){
       filterDropdownOpen = false;
