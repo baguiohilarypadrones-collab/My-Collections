@@ -169,7 +169,12 @@ html.dark .btn.cloud-pull{background:rgba(21,128,61,.15);color:#86efac;border-co
   .icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:999px;background:var(--panel-soft);color:var(--text);font-weight:800;}
   .icon-btn.danger{color:var(--danger);border-color:rgba(225,29,72,.25);}
   .text-btn{border:0;border-radius:999px;background:rgba(79,70,229,.12);color:var(--primary-2);padding:9px 14px;font-size:.72rem;font-weight:900;}
-
+  .text-btn span{
+  display:inline-block;
+  min-width:1em;
+  flex-shrink:0;
+}
+  
   .empty{border:1px dashed var(--border);border-radius:28px;padding:42px;text-align:center;color:var(--muted);margin-top:22px;}
 
   /* Overlay / Drawer / Modal */
@@ -184,6 +189,7 @@ html.dark .btn.cloud-pull{background:rgba(21,128,61,.15);color:#86efac;border-co
   align-items:center;
   justify-content:center;
   gap:6px;
+  overflow:visible;
   white-space:nowrap;}
   .user-tab.active{background:var(--primary);color:#fff;}
   .user-list{display:flex;flex-direction:column;gap:6px;}
@@ -877,7 +883,7 @@ function renderUserTabButtons(){
   const countFol = followingIds.filter(id => allMedia.some(m => m._id === id)).length;
   return `
     <div class="user-tabs">
-      <button class="user-tab ${userActiveTab==='favorites'?'active':''}" onclick="switchUserTab('favorites')">A Favorites (${countFavs})</button>
+      <button class="user-tab ${userActiveTab==='favorites'?'active':''}" onclick="switchUserTab('favorites')"><span>♥</span>Favorites(${countFavs})</button>
       <button class="user-tab ${userActiveTab==='following'?'active':''}" onclick="switchUserTab('following')">★ Following (${countFol})</button>
     </div>`;
 }
@@ -1065,7 +1071,7 @@ function renderProgressControls(item){
   if(item.category==="manhwa"){
     const current=p.currentChapter??0, total=p.totalChapters??0;
     return `<div class="progress-controls">
-      <button class="progress-btn" type="button" onclick="handlePatchProgress('${item._id}', {currentChapter: clamp(${current-1},0,${total})})">-</button>
+      <button class="progress-btn" type="button" onclick="handlePatchProgress('${item._id}', {currentChapter: clamp(${current-1},0,${total})})"><span>-</span></button>
       <span class="progress-value">${current}</span>
       <button class="progress-btn" type="button" onclick="handlePatchProgress('${item._id}', {currentChapter: clamp(${current+1},0,${total})})">+</button>
     </div>`;
