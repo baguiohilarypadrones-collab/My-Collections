@@ -1627,11 +1627,7 @@ const USER_DOC = fbDb.collection("app_data").doc("user_lists");
       host.appendChild(badge);
     }
 
-    cloudUnsub = fbDb.collection("media_items")
-  .orderBy("updatedAt", "desc")
-  .onSnapshot((snap) => {
-      ...
-  });
+    cloudUnsub = fbDb.collection("media_items").orderBy("updatedAt", "desc").limit(1000)
       .onSnapshot((snap) => {
         const items = [];
         snap.forEach(doc => {
